@@ -73,7 +73,7 @@ int wmain(int argc, WCHAR *argv[])
 		wprintf(L"Invalid .text section\n");
 		return 1;
 	}
-	HANDLE hFile = CreateFileW(argv[2], GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	HANDLE hFile = CreateFileW(argv[2], GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE) {
 		wprintf(L"Failed to open file: %s\n", argv[2]);
 		return 1;
@@ -92,4 +92,3 @@ int wmain(int argc, WCHAR *argv[])
 	wprintf(L"Wrote %lu bytes to %s\n", codeSection->Misc.VirtualSize, argv[2]);
 	return 0;
 }
-
