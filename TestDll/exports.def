@@ -1,0 +1,4 @@
+LIBRARY
+EXPORTS
+ExportOne	@1
+ExportThree	@3

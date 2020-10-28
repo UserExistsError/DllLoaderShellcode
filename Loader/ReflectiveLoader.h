@@ -31,6 +31,10 @@
 #include <windows.h>
 #include <intrin.h>
 
+// placeholder. replace in generated shellcode with ordinal to invoke
+#define ORDINAL_PLACEHOLDER 0xabcdefff // value should be an invalid ordinal (> 65535)
+#define ENABLE_EXPORT_INVOKE 1 // define to enable calling an export by ordinal after calling the entrypoint
+
 ////#include "ReflectiveDLLInjection.h"
 #define DLL_QUERY_HMODULE		6
 

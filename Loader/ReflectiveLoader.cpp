@@ -380,7 +380,7 @@ extern "C" ULONG_PTR WINAPI ReflectiveLoader( VOID )
 		// uiValueA = VA of the IAT (via first thunk not origionalfirstthunk)
 		uiValueA = ( uiBaseAddress + ((PIMAGE_IMPORT_DESCRIPTOR)uiValueC)->FirstThunk );
 
-		// itterate through all imported functions, importing by ordinal if no name present
+		// iterate through all imported functions, importing by ordinal if no name present
 		while( DEREF(uiValueA) )
 		{
 			// sanity check uiValueD as some compilers only import by FirstThunk
@@ -523,6 +523,25 @@ extern "C" ULONG_PTR WINAPI ReflectiveLoader( VOID )
 
 	// if we are injecting an DLL via a stub we call DllMain with no parameter
 	((DLLMAIN)uiValueA)( (HINSTANCE)uiBaseAddress, DLL_PROCESS_ATTACH, NULL );
+
+	// STEP 7: call export by ordinal
+#ifdef ENABLE_EXPORT_INVOKE
+	const volatile DWORD ordinalToInvoke = ORDINAL_PLACEHOLDER;
+	if (ordinalToInvoke > 0) {
+		uiExportDir = uiBaseAddress + ((PIMAGE_DOS_HEADER)uiBaseAddress)->e_lfanew;
+		uiNameArray = (ULONG_PTR) & ((PIMAGE_NT_HEADERS)uiExportDir)->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
+		uiExportDir = (uiBaseAddress + ((PIMAGE_DATA_DIRECTORY)uiNameArray)->VirtualAddress);
+		uiAddressArray = (uiBaseAddress + ((PIMAGE_EXPORT_DIRECTORY)uiExportDir)->AddressOfFunctions);
+
+		if (ordinalToInvoke <= ((PIMAGE_EXPORT_DIRECTORY)uiExportDir)->NumberOfFunctions) {
+			uiValueB = uiAddressArray + ((ordinalToInvoke - 1) * sizeof(DWORD));
+			if (DEREF_32(uiValueB)) { // make sure ordinal is valid
+				uiValueC = uiBaseAddress + DEREF_32(uiValueB);
+				((FARPROC)uiValueC)();
+			}
+		}
+	}
+#endif
 
 	// STEP 8: return our new entry point address so whatever called us can call DllMain() if needed.
 	return uiValueA;
